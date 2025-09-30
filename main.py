@@ -35,10 +35,10 @@ class AutoIPChanger:
             print(f"📱 Старый IP: {old_ip}")
             
             while True:
-            time.sleep(5)
-            # Пытаемся сменить IP
-            if self.toggle_flight_mode_adb():
-                break
+                time.sleep(5)
+                # Пытаемся сменить IP
+                if self.toggle_flight_mode_adb():
+                    break
             
             time.sleep(10)  # Ждем получения нового IP
             new_ip = self.get_current_ip()
