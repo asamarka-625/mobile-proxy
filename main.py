@@ -2,29 +2,36 @@
 import time
 import subprocess
 import re
+import requests
 
 
 class AutoIPChanger:
     def __init__(self):
         pass
     
-    def toggle_flight_mode_adb(self):
-        """Режим полета через ADB (работает без root)"""
+    def toggle_mobile_data(self):
+        """Перезагрузка мобильных данных (работает без root)"""
         try:
-            # Включаем режим полета
-            subprocess.run(['adb', 'shell', 'settings', 'put', 'global', 'airplane_mode_on', '1'], check=True)
-            subprocess.run(['adb', 'shell', 'am', 'broadcast', '-a', 'android.intent.action.AIRPLANE_MODE'], check=True)
+            print("📡 Перезагружаем мобильные данные...")
+            
+            # Отключаем мобильные данные
+            subprocess.run([
+                'svc', 'data', 'disable'
+            ], check=False, timeout=10)
+            
             time.sleep(3)
             
-            # Выключаем режим полета
-            subprocess.run(['adb', 'shell', 'settings', 'put', 'global', 'airplane_mode_on', '0'], check=True)
-            subprocess.run(['adb', 'shell', 'am', 'broadcast', '-a', 'android.intent.action.AIRPLANE_MODE'], check=True)
+            # Включаем мобильные данные
+            subprocess.run([
+                'svc', 'data', 'enable'
+            ], check=False, timeout=10)
+            
             time.sleep(5)
-            print("✅ Режим полета переключен")
+            print("✅ Мобильные данные перезагружены")
             return True
             
         except Exception as e:
-            print(f"❌ Ошибка ADB: {e}")
+            print(f"❌ Ошибка перезагрузки данных: {e}")
             return False
     
     
@@ -50,31 +57,23 @@ class AutoIPChanger:
             print(f"❌ Ошибка проверки IP: {e}")
             return False
     
-    def get_current_ip(self):
-        """Простой способ получить мобильный IP"""
-        try:
-            # Пробуем несколько команд
-            commands = [
-                ['ip', 'route', 'get', '8.8.8.8'],
-                ['netstat', '-rn'],
-                ['ifconfig']
-            ]
-            
-            for cmd in commands:
-                try:
-                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-                    if result.returncode == 0:
-                        # Ищем IP в выводе
-                        ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', result.stdout)
-                        if ip_match:
-                            return ip_match.group(1)
-                except:
-                    continue
-            
-            return "IP не определен"
-            
-        except Exception as e:
-            return f"Ошибка: {e}"
+      def get_external_ip_fast(self):
+        """Быстрое получение внешнего IP"""
+        fast_services = [
+            'https://api.ipify.org',
+        ]
+        
+        for service in fast_services:
+            try:
+                response = requests.get(service, timeout=5)
+                if response.status_code == 200:
+                    ip = response.text.strip()
+                    if self.is_valid_ip(ip):
+                        return ip
+            except:
+                continue
+        
+        return "Не удалось получить IP"
             
 
 if __name__ == "__main__":
