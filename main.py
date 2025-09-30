@@ -57,23 +57,23 @@ class AutoIPChanger:
             print(f"❌ Ошибка проверки IP: {e}")
             return False
     
-        def get_current_ip(self):
-            """Быстрое получение внешнего IP"""
-            fast_services = [
-                'https://api.ipify.org',
-            ]
-            
-            for service in fast_services:
-                try:
-                    response = requests.get(service, timeout=5)
-                    if response.status_code == 200:
-                        ip = response.text.strip()
-                        if self.is_valid_ip(ip):
-                            return ip
-                except:
-                    continue
-            
-            return "Не удалось получить IP"
+    def get_current_ip(self):
+        """Быстрое получение внешнего IP"""
+        fast_services = [
+            'https://api.ipify.org',
+        ]
+        
+        for service in fast_services:
+            try:
+                response = requests.get(service, timeout=5)
+                if response.status_code == 200:
+                    ip = response.text.strip()
+                    if self.is_valid_ip(ip):
+                        return ip
+            except:
+                continue
+        
+        return "Не удалось получить IP"
             
 
 if __name__ == "__main__":
