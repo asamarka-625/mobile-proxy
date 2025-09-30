@@ -10,29 +10,43 @@ class AutoIPChanger:
         pass
     
     def toggle_mobile_data(self):
-        """Перезагрузка мобильных данных (работает без root)"""
+        """Управление мобильными данными через Termux:API"""
         try:
-            print("📡 Перезагружаем мобильные данные...")
+            print("📡 Управляем мобильными данными через Termux API...")
+            
+            # Проверяем доступность Termux:API
+            result = subprocess.run(
+                ['termux-telephony-deviceinfo'], 
+                capture_output=True, 
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode != 0:
+                print("❌ Termux:API не установлен")
+                return self.fallback_method()
             
             # Отключаем мобильные данные
+            print("🔴 Отключаем мобильные данные...")
             subprocess.run([
-                'svc', 'data', 'disable'
-            ], check=False, timeout=10)
-            
-            time.sleep(3)
-            
-            # Включаем мобильные данные
-            subprocess.run([
-                'svc', 'data', 'enable'
+                'termux-telephony-call', '##4636##'
             ], check=False, timeout=10)
             
             time.sleep(5)
+            
+            # Включаем мобильные данные
+            print("🟢 Включаем мобильные данные...")
+            subprocess.run([
+                'termux-telephony-call', '*#*#4636#*#*'
+            ], check=False, timeout=10)
+            
+            time.sleep(8)
             print("✅ Мобильные данные перезагружены")
             return True
             
         except Exception as e:
-            print(f"❌ Ошибка перезагрузки данных: {e}")
-            return False
+            print(f"❌ Ошибка Termux API: {e}")
+            return self.fallback_method()
     
     
     def check_ip_change(self):
