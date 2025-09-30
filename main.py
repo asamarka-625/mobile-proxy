@@ -44,7 +44,7 @@ class AutoIPChanger:
             while True:
                 time.sleep(5)
                 # Пытаемся сменить IP
-                if self.toggle_flight_mode_adb():
+                if self.toggle_mobile_data():
                     break
             
             time.sleep(10)  # Ждем получения нового IP
@@ -68,8 +68,8 @@ class AutoIPChanger:
                 response = requests.get(service, timeout=5)
                 if response.status_code == 200:
                     ip = response.text.strip()
-                    if self.is_valid_ip(ip):
-                        return ip
+                    return ip
+                    
             except:
                 continue
         
